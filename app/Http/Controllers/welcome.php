@@ -1,0 +1,146 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\pengaturanLogo;
+use App\Models\pengaturanPerpus;
+use App\Models\buku;
+use App\Models\anggota;
+use App\Models\peminjaman;
+use App\Models\admin;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+
+class welcome extends Controller
+{
+    public function index()
+    {
+        $buku = buku::orderBy('kd_buku')->get();
+        $logo = pengaturanLogo::first();
+        $perpus = pengaturanPerpus::first();
+        return view('welcome', [
+            'logo' => $logo,
+            'perpus' => $perpus,
+            'buku' => $buku
+        ]);
+    }
+
+    public function login()
+    {
+        $logo = pengaturanLogo::first();
+        $perpus = pengaturanPerpus::first();
+        return view('login', [
+            'logo' => $logo,
+            'perpus' => $perpus
+        ]);
+    }
+
+    public function proses_login(Request $request)
+    {
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
+        try {
+            $username = $request->username;
+            $password = $request->password;
+            $sebagai = $request->sebagai;
+            
+            if($sebagai == "anggota"){
+                $anggota = anggota::where('nis',$username)->first();
+                if ($anggota) {
+                    if(Hash::check($password, $anggota->password)){
+                        $request->session()->put('nama_pengguna', $anggota->namaAnggota);
+                        $request->session()->put('status', 'anggota');
+                        $request->session()->put('nis', $anggota->nis);
+                        $request->session()->put('id', $anggota->id);
+                        $request->session()->put('login', true);
+                        return redirect('/');
+                    }else{
+                        return redirect('/login')->with('toast_error','Username atau password salah..');
+                    }
+                }else{
+                    return redirect('/login')->with('toast_error','Username atau password salah..');
+                }
+                
+            }else if($sebagai == "admin"){
+                $admin = admin::where('username',$username)->first();
+                if ($admin) {
+                    if(Hash::check($password, $admin->password)){
+                        $request->session()->put('nama_pengguna', $admin->nama_admin);
+                        $request->session()->put('status', 'admin');
+                        $request->session()->put('id', $admin->id);
+                        $request->session()->put('login', true);
+                        return redirect('/');
+                    }else{
+                        return redirect('/login')->with('toast_error','Username atau password salah..');
+                    }
+                }else{
+                    return redirect('/login')->with('toast_error','Username atau password salah..');
+                }
+
+            }else {
+                return redirect('/login')->with('toast_error','Terjadi Kesalahan!.');
+            }
+
+
+        } catch (\Throwable $th) {
+            return redirect('/login')->with('toast_error','Terjadi Kesalahan!.');
+        }
+        
+    }
+
+    public function anggota(Request $request)
+    {
+        $pengguna = $request->session()->get('nis');
+        $pinjaman = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
+        ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
+        ->where('status','pinjam')
+        ->where('tb_peminjaman.nis',$pengguna)
+        ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')
+        ->count();
+        $kembali = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
+        ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
+        ->where('status','kembali')
+        ->where('tb_peminjaman.nis',$pengguna)
+        ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')
+        ->count();
+        return view('pages/dashboard',[
+            'jumlah_peminjaman' => $pinjaman,
+            'jumlah_pengembalian' => $kembali
+        ]);
+    }
+
+    public function pinjaman(Request $request)
+    {
+        $pengguna = $request->session()->get('nis');
+        $pinjaman = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
+        ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
+        ->where('status','pinjam')
+        ->where('tb_peminjaman.nis',$pengguna)
+        ->orderBy('tb_peminjaman.ket','desc')
+        ->orderBy('tb_peminjaman.created_at','asc')
+        ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')
+        ->get();
+
+        return view('pages/pinjaman',[
+            'buku' => $pinjaman
+        ]);
+    }
+    public function kembali(Request $request)
+    {
+        $pengguna = $request->session()->get('nis');
+        $pinjaman = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
+        ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
+        ->where('status','kembali')
+        ->where('tb_peminjaman.nis',$pengguna)
+        ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.updated_at','tb_peminjaman.ket','tb_anggota.namaAnggota')
+        ->get();
+
+        return view('pages/pinjamanKembali',[
+            'buku' => $pinjaman
+        ]);
+    }
+
+}
