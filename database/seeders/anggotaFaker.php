@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\buku;
+use App\Models\anggota;
 use Illuminate\Support\Facades\Hash;
 use Faker\Factory as Faker;
 

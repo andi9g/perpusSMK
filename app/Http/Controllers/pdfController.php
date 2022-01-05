@@ -6,6 +6,9 @@ use App\Models\anggota;
 use App\Models\buku;
 use App\Models\admin;
 use App\Models\peminjaman;
+use App\Models\pengembalian;
+use App\Models\daftarPengunjung;
+use App\Models\logpeminjaman;
 use Illuminate\Http\Request;
 use PDF;
 
@@ -53,6 +56,13 @@ class pdfController extends Controller
                 return redirect("/cetak"."/".$laporan."/".$pencarian);
             }
         }elseif($laporan=='peminjam'){
+            if($request->pilihCetak=="keseluruhan"){
+                return redirect("/cetak"."/".$laporan."/".$request->pilihCetak);
+            }else if($request->pilihCetak=="berdasarkan"){
+                $pencarian = $request->cariCetak;
+                return redirect("/cetak"."/".$laporan."/".$pencarian);
+            }
+        }elseif($laporan=='daftarPengunjung'){
             if($request->pilihCetak=="keseluruhan"){
                 return redirect("/cetak"."/".$laporan."/".$request->pilihCetak);
             }else if($request->pilihCetak=="berdasarkan"){
@@ -123,23 +133,10 @@ class pdfController extends Controller
             if($ket=="keseluruhan"){
                 $query = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
                 ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
-                ->where("tb_peminjaman.ket","=","-")
                 ->where('tb_peminjaman.status','=','pinjam')
                 ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')->get();
 
                 $pdf = PDF::loadView('laporan.laporanPeminjaman', [
-                    'tampil' => $query,
-                    'ket' => $ket,
-                    'laporan' => $laporan 
-                    ]);
-            }else if($ket=="peminjamanKhusus"){
-                $query = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
-                ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
-                ->where("tb_peminjaman.ket","!=","-")
-                ->where('tb_peminjaman.status','=','pinjam')
-                ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')->get();
-
-                $pdf = PDF::loadView('laporan.laporanPeminjamanKhusus', [
                     'tampil' => $query,
                     'ket' => $ket,
                     'laporan' => $laporan 
@@ -153,7 +150,6 @@ class pdfController extends Controller
                 ->orWhere("tb_anggota.namaAnggota","like","%{$ket}%")
                 ->orWhere("tb_peminjaman.created_at","like","%{$ket}%")
                 ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')
-                ->where("tb_peminjaman.ket","=","-")
                 ->where('tb_peminjaman.status','=','pinjam')
                 ->get();
 
@@ -166,21 +162,20 @@ class pdfController extends Controller
             }
         }else if($laporan=="pengembalian"){
             if($ket=="keseluruhan"){
-                $query = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
-                ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
-                ->where('tb_peminjaman.status','=','kembali')
-                ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_peminjaman.updated_at','tb_anggota.namaAnggota')->get();
+                $query = pengembalian::join('tb_anggota','tb_anggota.nis','=','tb_pengembalian.nis')
+                ->join('tb_buku','tb_buku.kd_buku','=','tb_pengembalian.kd_buku')
+                ->where('tb_pengembalian.status','=','kembali')
+                ->select('tb_pengembalian.nis','tb_pengembalian.jumlah_pinjam','tb_pengembalian.kd_buku','tb_buku.judul_buku','tb_pengembalian.created_at','tb_pengembalian.status','tb_pengembalian.ket','tb_pengembalian.updated_at','tb_anggota.namaAnggota')->get();
             }else {
-                $query = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
-                ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
-                ->where("tb_peminjaman.nis","like","%{$ket}%")
-                ->orWhere("tb_peminjaman.kd_buku","like","%{$ket}%")
+                $query = pengembalian::join('tb_anggota','tb_anggota.nis','=','tb_pengembalian.nis')
+                ->join('tb_buku','tb_buku.kd_buku','=','tb_pengembalian.kd_buku')
+                ->where("tb_pengembalian.nis","like","%{$ket}%")
+                ->orWhere("tb_pengembalian.kd_buku","like","%{$ket}%")
                 ->orWhere("tb_buku.judul_buku","like","%{$ket}%")
                 ->orWhere("tb_anggota.namaAnggota","like","%{$ket}%")
-                ->orWhere("tb_peminjaman.created_at","like","%{$ket}%")
-                ->orWhere("tb_peminjaman.updated_at","like","%{$ket}%")
-                ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.updated_at','tb_peminjaman.ket','tb_anggota.namaAnggota')
-                ->where('tb_peminjaman.status','=','kembali')
+                ->orWhere("tb_pengembalian.created_at","like","%{$ket}%")
+                ->select('tb_pengembalian.nis','tb_pengembalian.jumlah_pinjam','tb_pengembalian.kd_buku','tb_buku.judul_buku','tb_pengembalian.created_at','tb_pengembalian.status','tb_pengembalian.updated_at','tb_pengembalian.ket','tb_anggota.namaAnggota')
+                ->where('tb_pengembalian.status','=','kembali')
                 ->get();
             }
 
@@ -191,18 +186,18 @@ class pdfController extends Controller
                 ]);
         }else if($laporan=="peminjam"){
             if($ket=="keseluruhan"){
-                $query = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
-                ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
-                ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_peminjaman.updated_at','tb_anggota.namaAnggota')->get();
+                $query = logpeminjaman::leftJoin('tb_anggota','tb_anggota.nis','=','log_peminjaman.nis')
+                ->leftJoin('tb_buku','tb_buku.kd_buku','=','log_peminjaman.kd_buku')
+                ->select('log_peminjaman.nis', 'log_peminjaman.status','log_peminjaman.jumlah_pinjam','log_peminjaman.kd_buku','tb_buku.judul_buku','log_peminjaman.created_at','log_peminjaman.ket','log_peminjaman.updated_at','tb_anggota.namaAnggota')->get();
             }else {
-                $query = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
-                ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
-                ->where("tb_peminjaman.nis","like","%{$ket}%")
-                ->orWhere("tb_peminjaman.kd_buku","like","%{$ket}%")
+                $query = logpeminjaman::leftJoin('tb_anggota','tb_anggota.nis','=','log_peminjaman.nis')
+                ->leftJoin('tb_buku','tb_buku.kd_buku','=','log_peminjaman.kd_buku')
+                ->where("log_peminjaman.nis","like","%{$ket}%")
+                ->orWhere("log_peminjaman.kd_buku","like","%{$ket}%")
                 ->orWhere("tb_buku.judul_buku","like","%{$ket}%")
                 ->orWhere("tb_anggota.namaAnggota","like","%{$ket}%")
-                ->orWhere("tb_peminjaman.created_at","like","%{$ket}%")
-                ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.updated_at','tb_peminjaman.ket','tb_anggota.namaAnggota')
+                ->orWhere("log_peminjaman.created_at","like","%{$ket}%")
+                ->select('log_peminjaman.nis','log_peminjaman.status','log_peminjaman.jumlah_pinjam','log_peminjaman.kd_buku','tb_buku.judul_buku','log_peminjaman.created_at','log_peminjaman.updated_at','log_peminjaman.ket','tb_anggota.namaAnggota')
                 ->get();
             }
 
@@ -211,6 +206,29 @@ class pdfController extends Controller
                 'ket' => $ket,
                 'laporan' => $laporan 
                 ]);
+        }else if ($laporan=="daftarPengunjung"){
+            if($ket=="keseluruhan"){
+                $query = anggota::join('jurusan','jurusan.id','=','tb_anggota.id_jurusan')
+                ->join('daftar_pengunjung','daftar_pengunjung.nis','=','tb_anggota.nis')
+                ->select('daftar_pengunjung.id','daftar_pengunjung.nis','tb_anggota.namaAnggota','jurusan.jurusan','daftar_pengunjung.created_at')
+                ->get();
+            }else {
+                $query = anggota::join('jurusan','jurusan.id','=','tb_anggota.id_jurusan')
+                ->join('daftar_pengunjung','daftar_pengunjung.nis','=','tb_anggota.nis')
+                ->select('daftar_pengunjung.id','daftar_pengunjung.nis','tb_anggota.namaAnggota','jurusan.jurusan','daftar_pengunjung.created_at')
+                ->where("daftar_pengunjung.nis","like","%{$ket}%")
+                ->orWhere("tb_anggota.namaAnggota","like","%{$ket}%")
+                ->orWhere("jurusan.jurusan","like","%{$ket}%")
+                ->orWhere("daftar_pengunjung.created_at","like","%{$ket}%")
+                ->get();
+            }
+
+            $pdf = PDF::loadView('laporan.laporanPengunjung', [
+                'tampil' => $query,
+                'ket' => $ket,
+                'laporan' => $laporan 
+            ]);
+
         }
         
   

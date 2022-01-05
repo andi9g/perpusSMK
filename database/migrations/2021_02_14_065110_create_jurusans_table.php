@@ -18,6 +18,13 @@ class CreateJurusansTable extends Migration
             $table->string('jurusan')->unique();
             $table->timestamps();
         });
+
+        Schema::create('jenis_buku', function (Blueprint $table) {
+            $table->id();
+            $table->string('jenis_buku')->unique();
+            $table->timestamps();
+        });
+
         Schema::create('tb_pengaturan', function (Blueprint $table) {
             $table->id();
             $table->string('nama_perpus');
@@ -39,6 +46,7 @@ class CreateJurusansTable extends Migration
     public function down()
     {
         Schema::dropIfExists('jurusan');
+        Schema::dropIfExists('jenis_buku');
         Schema::dropIfExists('tb_pengaturan');
         Schema::dropIfExists('tb_logo');
     }

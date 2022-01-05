@@ -98,11 +98,16 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="jenis_buku" class="col-sm-2 col-form-label">Jenis B.</label>
+                        <label for="jenis_buku" class="col-sm-2 col-form-label">J. Buku</label>
                         <div class="col-sm-10">
-                          <input type="text" class="form-control @error('jenis_buku')
-                              is-invalid
-                          @enderror" id="jenis_buku" style="text-transform: capitalize" name="jenis_buku" placeholder="jenis buku" value="{{old('jenis_buku')}}">
+                          <select name="jenis_buku" id="jenis_buku" class="form-control" required>
+                            <option value="">-- none --</option>
+                            @foreach ($jenis_buku as $jenis_buku)
+                                <option value="{{ $jenis_buku->id }}" @if (old('jenis_buku')==$jenis_buku->id)
+                                    selected
+                                @endif>{{ ucwords($jenis_buku->jenis_buku) }}</option>
+                            @endforeach
+                          </select>
                           @error('jenis_buku')
                             <span class="pesan_error">{{$message}}</span>  
                           @enderror
@@ -136,7 +141,7 @@
                     </div>
                     <!-- /.card-body -->
                     <div class="card-footer ">
-                        <a href="{{ url('anggota', []) }}" style="font-size: 20px">
+                        <a href="{{ url('buku', []) }}" style="font-size: 20px">
                             <i class="fa fa-angle-double-left"></i>
                             &nbsp;Kembali
                         </a>

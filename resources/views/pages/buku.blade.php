@@ -35,6 +35,8 @@
           <a href="{{ route('buku.create') }}" class="btn btn-success">
               <i class="fa fa-plus"></i> &nbsp;Tambah Buku
           </a>
+
+          
           
         </div>
         <div class="col text-right">
@@ -49,6 +51,23 @@
   </div>
   <!-- /.card-header -->
   <div class="card-body">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <form action="{{ url()->current() }}" class="d-inline">
+          <div class="form-group top_search">
+            <div class="input-group">
+                <input type="text" class="form-control bgku3" name="keyword" value="{{empty($_GET['keyword'])?'':$_GET['keyword']}}" placeholder="Search for...">
+                <span class="input-group-btn">
+                  <button type="submit" class="btn btn-default"  type="button">Search</button>
+                </span>
+              </div>
+            </div>
+          </form>
+      </div>
+    </div>
+    
+
+
     <table id="example2" class="table table-sm table-hover table-bordered table-striped tabelku" style="font-size:11pt">
       <thead>
       <tr align="center">
@@ -64,23 +83,23 @@
       </tr>
       </thead>
       <tbody>
-        @foreach ($buku as $buku)
+        @foreach ($buku as $tampil)
         <tr style="text-transform: capitalize">
-          <td>{{$buku->kd_buku}}</td>
-          <td nowrap>{{$buku->judul_buku}}</td>
-          <td nowrap>{{$buku->pengarang}}</td>
-          <td nowrap>{{$buku->penerbit}}</td>
-          <td nowrap>{{$buku->tahun}}</td>
-          <td nowrap>{{$buku->jenis_buku}}</td>
-          <td align="center" nowrap>{{$buku->lokasi_rak}}</td>
-          <td nowrap>{{$buku->stok}}</td>
+          <td>{{$tampil->kd_buku}}</td>
+          <td nowrap>{{$tampil->judul_buku}}</td>
+          <td nowrap>{{$tampil->pengarang}}</td>
+          <td nowrap>{{$tampil->penerbit}}</td>
+          <td nowrap>{{$tampil->tahun}}</td>
+          <td nowrap>{{$tampil->jenis_buku}}</td>
+          <td align="center" nowrap>{{$tampil->lokasi_rak}}</td>
+          <td nowrap>{{$tampil->stok}}</td>
           
           <td nowrap class="text-center">
-            <a href="{{ route('buku.edit', $buku->id) }}" class="btn btn-info btn-xs px-2">
+            <a href="{{ route('buku.edit', $tampil->id) }}" class="btn btn-info btn-xs px-2">
               <i class="fa fa-pencil"></i> Edit
             </a>
   
-            <form action="{{ route('buku.destroy', $buku->id) }}" method="post" class="d-inline">
+            <form action="{{ route('buku.destroy', $tampil->id) }}" method="post" class="d-inline">
               @csrf
               @method('DELETE')
               <button type="submit" onclick="return confirm('Yakin dihapus?..')" class="btn btn-danger btn-xs px-2">
@@ -94,6 +113,15 @@
       
       </tbody>
     </table>
+
+    <div class="row align-content-center justify-content-center">
+      <div class="col-12">
+        <div class="card-body float-right">
+          {{ $buku->links('vendor.pagination.bootstrap-4') }}
+        </div>
+      </div>
+    </div>
+    
 
     <div class="modal fade" id="modal-default">
       <div class="modal-dialog">

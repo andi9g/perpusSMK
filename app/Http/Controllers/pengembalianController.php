@@ -14,14 +14,24 @@ class pengembalianController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $peminjaman = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
-        ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
+        $peminjaman = peminjaman::when($request->keyword, function($query) use ($request){
+            $query->where('tb_peminjaman.nis','like',"%{$request->keyword}%")
+                ->orWhere('tb_peminjaman.kd_buku','like',"%{$request->keyword}%")
+                ->orWhere('tb_anggota.namaAnggota','like',"%{$request->keyword}%")
+                ->orWhere('tb_peminjaman.created_at','like',"%{$request->keyword}%")
+                ->orWhere('tb_buku.judul_buku','like',"%{$request->keyword}%");
+        })->leftJoin('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
+        ->leftJoin('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
         ->where('status','pinjam')
         ->orderBy('ket','desc')
         ->orderBy('created_at','asc')
-        ->select('tb_peminjaman.nis','tb_peminjaman.id','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')->get();
+        ->select('tb_peminjaman.nis','tb_peminjaman.id','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.status','tb_peminjaman.ket','tb_anggota.namaAnggota')
+        ->paginate($request->limit ? $request->limit : 10);
+
+        $peminjaman->appends($request->only('keyword','limit'));
+
 
         return view('pages.pengembalian', [
             'peminjaman' => $peminjaman

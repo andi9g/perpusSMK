@@ -13,12 +13,23 @@ class adminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $admin = admin::get();
+        $admin = admin::when($request->keyword, function($query) use ($request){
+            $query->where('nama_admin','like',"%{$request->keyword}%")
+                ->orWhere('username','like',"%{$request->keyword}%");
+        })->orderBy('nama_admin')
+        ->paginate($request->limit ? $request->limit : 10);
+
+        $admin->appends($request->only('keyword','limit'));
+
         return view('pages.admin',[
             'admin' => $admin
         ]);
+
+        
+        
+        
     }
 
     /**

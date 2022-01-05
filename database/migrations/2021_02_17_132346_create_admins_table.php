@@ -22,6 +22,7 @@ class CreateAdminsTable extends Migration
             $table->string('foto')->nullable();
             $table->timestamps();
         });
+        
         DB::table('tb_admin')->insert([
             'nama_admin' => 'admin',
             'username' => 'admin',

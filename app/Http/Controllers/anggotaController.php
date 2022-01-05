@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\anggota;
+use App\Models\peminjaman;
 use App\Models\jurusan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,13 +16,18 @@ class anggotaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-
-        $anggota = anggota::join('jurusan','tb_anggota.id_jurusan','=','jurusan.id')
-        ->select('tb_anggota.nis','tb_anggota.namaAnggota','tb_anggota.noHp','tb_anggota.password','jurusan.jurusan')->orderBy('tb_anggota.nis')->get();
+        $anggota = anggota::when($request->keyword, function($query) use ($request){
+            $query->where('tb_anggota.nis','like',"%{$request->keyword}%")
+                ->orWhere('tb_anggota.namaAnggota','like',"%{$request->keyword}%")
+                ->orWhere('jurusan.jurusan','like',"%{$request->keyword}%");
+        })->join('jurusan','tb_anggota.id_jurusan','=','jurusan.id')
+        ->select('tb_anggota.nis','tb_anggota.namaAnggota','tb_anggota.noHp','tb_anggota.password','jurusan.jurusan')
+        ->orderBy('tb_anggota.nis')
+        ->paginate($request->limit ? $request->limit : 10);
         
-
+        $anggota->appends($request->only('keyword','limit'));
         return view('pages.anggota',[
             'anggota' => $anggota
         ]);
@@ -140,9 +146,17 @@ class anggotaController extends Controller
     public function destroy(anggota $anggota,$nis)
     {
         try {
-            $anggota = anggota::where('nis',$nis)->delete();
+            $cek = peminjaman::where('nis',$nis)->count();
+
+            if($cek == 0) {
+                $anggota = anggota::where('nis',$nis)->delete();
+            }else {
+                $anggota = false;
+            }
             if($anggota) {
                 return redirect('anggota')->with('success', 'Data berhasil dihapus');
+            }else {
+                return redirect('anggota')->with('warning', 'Anggota sedang dalam masa peminjaman buku');
             }
         } catch (\Throwable $th) {
             return redirect('anggota')->with('toast_error', 'Terdapat data yang tidak memenuhi aturan!');

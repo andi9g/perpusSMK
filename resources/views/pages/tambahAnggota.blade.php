@@ -43,8 +43,8 @@
                     <div class="card-body">
                       
                     <div class="form-group row">
-                        <label for="nisAnggota" class="col-sm-2 col-form-label">NIS</label>
-                        <div class="col-sm-10">
+                        <label for="nisAnggota" class="col-sm-3 col-form-label">NIS</label>
+                        <div class="col-sm-9">
                           <input type="number" class="form-control @error('nisAnggota')
                               is-invalid
                           @enderror" id="nisAnggota" name="nisAnggota" placeholder="0xx." value="{{old('nisAnggota')}}">
@@ -55,8 +55,8 @@
                     </div>
                     
                     <div class="form-group row">
-                        <label for="namaAnggota" class="col-sm-2 col-form-label">Nama Anggota</label>
-                        <div class="col-sm-10">
+                        <label for="namaAnggota" class="col-sm-3 col-form-label">Nama Anggota</label>
+                        <div class="col-sm-9">
                           <input type="text" style="text-transform: capitalize" class="form-control @error('namaAnggota')
                               is-invalid
                           @enderror" id="namaAnggota" name="namaAnggota" placeholder="Nama Anggota" value="{{old('namaAnggota')}}">
@@ -67,8 +67,8 @@
                     </div>
                     
                     <div class="form-group row">
-                        <label for="jurusan" class="col-sm-2 col-form-label">Jurusan</label>
-                        <div class="col-sm-10">
+                        <label for="jurusan" class="col-sm-3 col-form-label">Jurusan</label>
+                        <div class="col-sm-9">
                             <select name="jurusan" class="form-control">
                                 @foreach ($jurusan as $jurusan)
                                 <option value="{{$jurusan->id}}" @if (old('jurusan')==$jurusan->id)
@@ -85,8 +85,8 @@
                     </div>
                     
                     <div class="form-group row">
-                        <label for="noHp" class="col-sm-2 col-form-label">No Hp</label>
-                        <div class="col-sm-10">
+                        <label for="noHp" class="col-sm-3 col-form-label">No Hp</label>
+                        <div class="col-sm-9">
                           <input type="number" class="form-control @error('noHp')
                               is-invalid
                           @enderror" id="noHp" name="noHp" placeholder="081234567xxx" value="{{old('noHp')}}">
@@ -103,7 +103,7 @@
                             <i class="fa fa-angle-double-left"></i>
                             &nbsp;Kembali
                         </a>
-                      <button type="submit" class="btn btn-success float-right mx-2 ">Tambah</button>
+                      <button type="submit" class="btn btn-success float-right mx-2 ">Tambah Anggota</button>
                       <button type="reset" class="btn btn-secondary float-right mx-2">Reset</button>
                     </div>
                     <!-- /.card-footer -->

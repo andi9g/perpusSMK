@@ -52,6 +52,21 @@
   </div>
   <!-- /.card-header -->
   <div class="card-body">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <form action="{{ url()->current() }}" class="d-inline">
+          <div class="form-group top_search">
+            <div class="input-group">
+                <input type="text" class="form-control bgku3" name="keyword" value="{{empty($_GET['keyword'])?'':$_GET['keyword']}}" placeholder="Search for...">
+                <span class="input-group-btn">
+                  <button type="submit" class="btn btn-default"  type="button">Search</button>
+                </span>
+              </div>
+            </div>
+          </form>
+      </div>
+    </div>
+
     <table id="example2" class="table table-sm table-hover table-bordered table-striped tabelku">
       <thead>
       <tr align="center">
@@ -66,29 +81,31 @@
       </tr>
       </thead>
       <tbody>
-        @foreach ($peminjaman as $peminjaman)
+        @foreach ($peminjaman as $tampil)
+        @if ($tampil->status == 'pinjam')
+            
         <tr style="text-transform: capitalize">
-          <td align="center">{{$peminjaman->nis}}</td>
-          <td nowrap>{{$peminjaman->namaAnggota}}</td>
-          <td align="center">{{$peminjaman->kd_buku}}</td>
-          <td nowrap>{{$peminjaman->judul_buku}}</td>
+          <td align="center">{{$tampil->nis}}</td>
+          <td nowrap>{{$tampil->namaAnggota}}</td>
+          <td align="center">{{$tampil->kd_buku}}</td>
+          <td nowrap>{{$tampil->judul_buku}}</td>
           <td align="center">
             {{
-              date('d/m/Y',strtotime($peminjaman->created_at))
+              date('d/m/Y',strtotime($tampil->created_at))
             }}
           </td>
-          <td align="center">{{$peminjaman->jumlah_pinjam}}</td>
+          <td align="center">{{$tampil->jumlah_pinjam}}</td>
           <td align="center">
-            {{$peminjaman->ket}}
+            {{$tampil->ket}}
           </td>
           <td align="center" nowrap>
             @php
               $hari = DB::table('tb_pengaturan')->first();
-                $tgl_pinjam = strtotime($peminjaman->created_at);
-                if($peminjaman->ket == "-"){
-                  $masa_pinjam = strtotime('+'.$hari->keterlambatan.' days',strtotime($peminjaman->created_at));
+                $tgl_pinjam = strtotime($tampil->created_at);
+                if($tampil->ket =="-"){
+                  $masa_pinjam = strtotime('+'.$hari->keterlambatan.' days',strtotime($tampil->created_at));
                 }else {
-                  $masa_pinjam = strtotime('+1 days',strtotime($peminjaman->created_at));
+                  $masa_pinjam = strtotime('+1 days',strtotime($tampil->created_at));
                 }
                 $tgl_sekarang = strtotime('now');
 
@@ -110,11 +127,20 @@
           </td>
           
         </tr>
+        @endif
         @endforeach
       
       </tbody>
     </table>
     
+
+    <div class="row align-content-center justify-content-center">
+      <div class="col-12">
+        <div class="card-body float-right">
+          {{ $peminjaman->links('vendor.pagination.bootstrap-4') }}
+        </div>
+      </div>
+    </div>
 
     <div class="modal fade" id="modal-default">
       <div class="modal-dialog">
@@ -137,7 +163,7 @@
                 <select class="form-control" onchange="tampilCetak()" name="pilihCetak" id="cetakPilih">
                   <option value="keseluruhan">Peminjaman Satuan (keseluruhan)</option>
                   <option value="berdasarkan">Peminjaman Satuan (berdasarkan)</option>
-                  <option value="peminjamanKhusus"><b>Peminjaman Khusus (keseluruhan)</b></option>
+                  
                 </select>
               </div>
 
@@ -214,7 +240,7 @@
                       @foreach ($buku as $buku)
                         <option value="{{$buku->kd_buku}}"  @if (old("buku")==$buku->id)
                             selected
-                        @endif>{{strtoupper($buku->kd_buku)}} - {{strtoupper($buku->judul_buku)}} </option>
+                        @endif>{{strtoupper($buku->kd_buku)}} - {{strtoupper($buku->judul_buku)}} - {{strtoupper($buku->jenis_buku)}} </option>
                       @endforeach
                     </select>
                 </div>

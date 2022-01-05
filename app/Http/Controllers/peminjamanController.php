@@ -15,21 +15,35 @@ class peminjamanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $anggota = anggota::join('jurusan','tb_anggota.id_jurusan','=','jurusan.id')
-        ->select('tb_anggota.nis','tb_anggota.namaAnggota','tb_anggota.noHp','tb_anggota.password','jurusan.jurusan')
-        ->orderBy('tb_anggota.nis')
+        ->select('tb_anggota.nis','tb_anggota.namaAnggota','jurusan.jurusan')
+        ->orderBy('tb_anggota.namaAnggota')
         ->get();
 
-        $buku  = buku::get();
+        $buku  = buku::select('tb_buku.id','kd_buku','judul_buku','jenis_buku.jenis_buku')
+        ->join('jenis_buku','jenis_buku.id','=','tb_buku.jenis_buku')
+        ->where('tb_buku.ket',"tersedia")
+        ->get();
 
-        $peminjaman = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
-        ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
-        ->where('status','pinjam')
-        ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')
+        $peminjaman = peminjaman::when($request->keyword, function($query) use ($request){
+            $query->where('tb_peminjaman.nis','like',"%{$request->keyword}%")
+                ->orWhere('tb_peminjaman.kd_buku','like',"%{$request->keyword}%")
+                ->orWhere('tb_anggota.namaAnggota','like',"%{$request->keyword}%")
+                ->orWhere('tb_peminjaman.created_at','like',"%{$request->keyword}%")
+                ->orWhere('tb_buku.judul_buku','like',"%{$request->keyword}%");
+        })->leftJoin('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
+        ->leftJoin('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
+        ->where('tb_peminjaman.status','pinjam')
+        ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.ket','tb_peminjaman.created_at','tb_peminjaman.status','tb_anggota.namaAnggota')
         ->orderBy('tb_peminjaman.id','desc')
-        ->get();
+        ->paginate($request->limit ? $request->limit : 10);
+
+        $peminjaman->appends($request->only('keyword','limit'));
+
+
+        
 
         return view('pages.peminjaman', [
             'anggota' => $anggota,
@@ -125,11 +139,12 @@ class peminjamanController extends Controller
     public function banyakBuku()
     {
         $anggota = anggota::join('jurusan','tb_anggota.id_jurusan','=','jurusan.id')
-        ->select('tb_anggota.nis','tb_anggota.namaAnggota','tb_anggota.noHp','tb_anggota.password','jurusan.jurusan')
-        ->orderBy('tb_anggota.nis')
+        ->select('tb_anggota.nis','tb_anggota.namaAnggota','jurusan.jurusan')
+        ->orderBy('tb_anggota.namaAnggota')
         ->get();
-        
-        $buku  = buku::get();
+
+        $buku  = buku::select('id','kd_buku','judul_buku')->get();
+
         return view('pages.pinjamSeluruh', [
             'anggota' => $anggota,
             'buku' => $buku,
@@ -195,21 +210,9 @@ class peminjamanController extends Controller
      * @param  \App\Models\peminjaman  $peminjaman
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, peminjaman $peminjaman)
+    public function update(Request $request, peminjaman $kembali, $id)
     {
-        try {
-            $update = peminjaman::where('id',$peminjaman->id)->update([
-                'status' => 'kembali'
-            ]);
-
-            if($update){
-                return redirect('/pengembalian')->with('success','Pengembalian Berhasil');
-            }else{
-                return redirect('/pengembalian')->with('toast_error','Pengembalian Gagal, Terjadi kesalahan');
-            }
-        } catch (\Throwable $th) {
-            return redirect('/pengembalian')->with('warning','Terjadi kesalahan');
-        }
+       
     }
 
     /**
@@ -218,8 +221,18 @@ class peminjamanController extends Controller
      * @param  \App\Models\peminjaman  $peminjaman
      * @return \Illuminate\Http\Response
      */
-    public function destroy(peminjaman $peminjaman)
+    public function destroy(peminjaman $kembali,$id)
     {
-        //
+        try {
+            $hapus = $kembali->destroy($id);
+
+            if($hapus){
+                return redirect('/pengembalian')->with('success','Pengembalian Berhasil');
+            }else{
+                return redirect('/pengembalian')->with('toast_error','Pengembalian Gagal, Terjadi kesalahan');
+            }
+        } catch (\Throwable $th) {
+            return redirect('/pengembalian')->with('warning','Terjadi kesalahan');
+        }
     }
 }

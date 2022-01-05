@@ -9,7 +9,7 @@ class peminjaman extends Model
 {
     use HasFactory;
     protected $table = 'tb_peminjaman';
-    protected $fillable = ['id_anggota','id_buku','jumlah_pinjam'];
+    protected $fillable = ['id_anggota','id_buku','jumlah_pinjam','status','ket'];
 
 
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\peminjaman;
+use App\Models\logpeminjaman;
+use App\Models\pengembalian;
 use App\Models\anggota;
 use App\Models\buku;
 
@@ -20,10 +22,10 @@ class homeController extends Controller
 
         for($bln;$bln<=12;$bln++){
             if($bln<=9){
-                $j_pinjam = peminjaman::orderBy('id')
+                $j_pinjam = logpeminjaman::orderBy('id')
                 ->where('created_at','like',"%{$tahun}-0{$bln}%")
                 ->count();
-                $j_kembali = peminjaman::orderBy('id')
+                $j_kembali = pengembalian::orderBy('id')
                 ->where('created_at','like',"%{$tahun}-0{$bln}%")
                 ->where('status','=','kembali')
                 ->count();
@@ -32,10 +34,10 @@ class homeController extends Controller
                 $bulan[] = $nama_bulan[$bln-1];
                 
             }else {
-                $j_pinjam = peminjaman::orderBy('id')
+                $j_pinjam = logpeminjaman::orderBy('id')
                 ->where('created_at','like',"%{$tahun}-{$bln}%")
                 ->count();
-                $j_kembali = peminjaman::orderBy('id')
+                $j_kembali = pengembalian::orderBy('id')
                 ->where('created_at','like',"%{$tahun}-{$bln}%")
                 ->where('status','=','kembali')
                 ->count();
@@ -46,16 +48,16 @@ class homeController extends Controller
             }
         }
         //buku
-        $jumlah_buku = buku::count();
+        $jumlah_buku = buku::where('ket','tersedia')->count();
 
         //jumlah anggota
         $jumlah_anggota = anggota::count();
 
         //total pinjam hari ini
         $sekarang = date('Y-m-d');
-        $total_pinjam_hari_ini = peminjaman::where('created_at', 'like',"%{$sekarang}%")
+        $total_pinjam_hari_ini = logpeminjaman::where('created_at', 'like',"%{$sekarang}%")
         ->count();
-        $total_kembali_hari_ini = peminjaman::where('updated_at', 'like',"%{$sekarang}%")
+        $total_kembali_hari_ini = pengembalian::where('updated_at', 'like',"%{$sekarang}%")
         ->where('status','=','kembali')
         ->count();
 

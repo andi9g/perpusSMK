@@ -22,14 +22,14 @@
         <div class="card-body box-profile">
           <div class="text-center">
             <img class="profile-user-img img-fluid"
-                 src="gambar/profile/{{$foto}}"
+                 src="gambar/profile/"
                  alt="User profile picture"
                  style="min-height: 90px">
           </div>
 
-          <h3 class="profile-username text-center" style="text-transform: capitalize">{{Session::get('nama_pengguna')}}</h3>
+          <h3 class="profile-username text-center" style="text-transform: capitalize">Nama Pengguna</h3>
 
-          <p class="text-muted text-center">{{Session::get('status')}}</p>
+          <p class="text-muted text-center">User</p>
 
           
 

@@ -33,7 +33,7 @@
       <div class="row">
         <div class="col text-left">
           <a href="{{ route('anggota.create') }}" class="btn btn-success">
-              <i class="fa fa-plus"></i> &nbsp;Tambah Anggota 
+              <i class="fa fa-plus"></i> &nbsp;Tambah Anggota
           </a>
           
         </div>
@@ -49,27 +49,51 @@
   </div>
   <!-- /.card-header -->
   <div class="card-body">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <form action="{{ url()->current() }}" class="d-inline">
+          <div class="form-group top_search">
+            <div class="input-group">
+                <input type="text" class="form-control bgku3" name="keyword" value="{{empty($_GET['keyword'])?'':$_GET['keyword']}}" placeholder="Search for...">
+                <span class="input-group-btn">
+                  <button type="submit" class="btn btn-default"  type="button">Search</button>
+                </span>
+              </div>
+            </div>
+          </form>
+      </div>
+    </div>
+
+
     <table id="example2" class="table table-sm table-hover table-bordered table-striped tabelku">
       <thead>
       <tr align="center">
         <th>Nis</th>
         <th>Nama Anggota</th>
         <th>Jurusan</th>
+        <th>Password</th>
         <th>Aksi</th>
       </tr>
       </thead>
       <tbody>
-        @foreach ($anggota as $anggota)
+        @foreach ($anggota as $tampil)
         <tr style="text-transform: capitalize">
-          <td align="center">{{$anggota->nis}}</td>
-          <td nowrap>{{$anggota->namaAnggota}}</td>
-          <td align="center" nowrap style="text-transform: uppercase">{{$anggota->jurusan}}</td>
+          <td align="center">{{$tampil->nis}}</td>
+          <td nowrap>{{$tampil->namaAnggota}}</td>
+          <td align="center" nowrap style="text-transform: uppercase">{{$tampil->jurusan}}</td>
+          <td align="center" nowrap style="text-transform: uppercase">
+            @if (Hash::check('perpus12345', $tampil->password))
+              Default
+            @else
+              -
+            @endif
+          </td>
           <td nowrap class="text-center">
-            <a href="{{ route('anggota.edit', $anggota->nis) }}" class="btn btn-info btn-xs px-2">
+            <a href="{{ route('anggota.edit', $tampil->nis) }}" class="btn btn-info btn-xs px-2">
               <i class="fa fa-pencil"></i> Edit
             </a>
   
-            <form action="{{ route('anggota.destroy', $anggota->nis) }}" method="post" class="d-inline">
+            <form action="{{ route('anggota.destroy', $tampil->nis) }}" method="post" class="d-inline">
               @csrf
               @method('DELETE')
               <button type="submit" onclick="return confirm('Yakin dihapus?..')" class="btn btn-danger btn-xs px-2">
@@ -77,7 +101,7 @@
               </button>
             </form>
             
-            <a href="{{ url('anggota/resetPassword/'.$anggota->nis) }}" onclick="return confirm('yakin direset?..')" class="btn btn-primary btn-xs px-2">
+            <a href="{{ url('anggota/resetPassword/'.$tampil->nis) }}" onclick="return confirm('yakin direset?..')" class="btn btn-primary btn-xs px-2">
               <i class="fas fa-key"></i> RePass
             </a>
           </td>
@@ -86,6 +110,14 @@
       
       </tbody>
     </table>
+
+    <div class="row align-content-center justify-content-center">
+      <div class="col-12">
+        <div class="card-body float-right">
+          {{ $anggota->links('vendor.pagination.bootstrap-4') }}
+        </div>
+      </div>
+    </div>
 
     <div class="modal fade" id="modal-default">
       <div class="modal-dialog">

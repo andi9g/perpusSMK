@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\buku;
+use App\Models\peminjaman;
+use App\Models\jenisBuku;
 use Illuminate\Http\Request;
 
 class bukuController extends Controller
@@ -12,9 +14,22 @@ class bukuController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $buku = buku::orderBy('kd_buku')->get();
+        $buku = buku::when($request->keyword, function($query) use ($request){
+            $query->where('judul_buku','like',"%{$request->keyword}%")
+                ->orWhere('kd_buku','like',"%{$request->keyword}%")
+                ->orWhere('pengarang','like',"%{$request->keyword}%")
+                ->orWhere('penerbit','like',"%{$request->keyword}%")
+                ->orWhere('lokasi_rak','like',"%{$request->keyword}%");
+        })->select('tb_buku.*','jenis_buku.jenis_buku')
+        ->join('jenis_buku','jenis_buku.id','=','tb_buku.jenis_buku')
+        ->orderBy('judul_buku')
+        ->where('tb_buku.ket','tersedia')
+        ->paginate($request->limit ? $request->limit : 10);
+
+        $buku->appends($request->only('keyword','limit'));
+
         return view('pages.buku',[
             'buku' => $buku
         ]);
@@ -27,7 +42,10 @@ class bukuController extends Controller
      */
     public function create()
     {
-        return view('pages.tambahBuku');
+        $jenis_buku = jenisBuku::get();
+        return view('pages.tambahBuku',[
+            'jenis_buku' => $jenis_buku
+        ]);
     }
 
     /**
@@ -48,10 +66,7 @@ class bukuController extends Controller
             'lokasi_rak' => 'required',
             'stok' => 'required',
         ]);
-
         try {
-            
-            
             $buku = new buku;
             $buku->kd_buku = $request->kd_buku;
             $buku->judul_buku = $request->judul_buku;
@@ -61,14 +76,18 @@ class bukuController extends Controller
             $buku->jenis_buku = $request->jenis_buku;
             $buku->lokasi_rak = $request->lokasi_rak;
             $buku->stok = $request->stok;
+            $buku->ket = "tersedia";
             $buku->save();
 
             if($buku){
                 return redirect('buku')->with('toast_success','Data berhasil di tambahkan');
             }
-        } catch (\Throwable $e) {
-            return redirect('buku/create')->with('toast_error', 'Terdapat data yang tidak memenuhi aturan!');  
+        } catch (\Throwable $th) {
+            return redirect('buku')->with('toast_error','Terjadi Kesalahan');
         }
+            
+            
+       
 
     }
 
@@ -89,9 +108,19 @@ class bukuController extends Controller
      * @param  \App\Models\buku  $buku
      * @return \Illuminate\Http\Response
      */
-    public function edit(buku $buku)
+    public function edit(buku $bk, $id)
     {
-        return view('pages.editBuku',compact('buku'));
+        try {
+            $jenis_buku = jenisBuku::get();
+            $buku = $bk->where('id',$id)->first();
+            return view('pages.editBuku',[
+                'buku'=>$buku,
+                'jenis_buku' => $jenis_buku,
+            ]);
+            //code...
+        } catch (\Throwable $th) {
+            return redirect('/buku')->with("toast_error","terjadi kesalahan");
+        }
        
     }
 
@@ -142,15 +171,23 @@ class bukuController extends Controller
      * @param  \App\Models\buku  $buku
      * @return \Illuminate\Http\Response
      */
-    public function destroy(buku $buku)
+    public function destroy(buku $bk,$kd)
     {
         try {
-            $buku = buku::destroy($buku->id);
+            $ambil = $bk->where('id',$kd)->first();
+            $cek = peminjaman::where('kd_buku',$ambil->kd_buku)->count();
+            if($cek == 0 ){
+                $buku = buku::destroy($kd);
+            }else {
+                $buku = false;
+            }
             if($buku){
-                return redirect('buku')->with('toast_warning','Data berhasil di Hapus');
+                return redirect('buku')->with('success','Data berhasil di Hapus');
+            }else{
+                return redirect('buku')->with('warning','Buku sedang dipinjam');
             }
         } catch (\Throwable $th) {
-            return redirect('buku/edit')->with('toast_error', 'Terdapat data yang tidak memenuhi aturan!'); 
+            return redirect('buku')->with('toast_error', 'Terdapat data yang tidak memenuhi aturan!'); 
         }
     }
 }

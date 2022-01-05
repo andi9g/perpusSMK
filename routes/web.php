@@ -19,6 +19,9 @@ use App\Http\Controllers\anggotaController;
 Route::get('/welcome', 'welcome@index');
 Route::get('/login', 'welcome@login');
 Route::patch('/login/proses', 'welcome@proses_login');
+Route::get('/pengunjung', 'welcome@halamanPengunjung')->name('halaman.pengunjung');
+Route::post('/pengunjung/tambah', 'welcome@tambahPengunjung')->name('tambah.pengunjung');
+Route::post('/pengunjung/perangkat', 'welcome@perangkat')->name('tambah.perangkat');
 
 Route::middleware(['status','anggota'])->group(function () {
     Route::get('/dashboard', 'welcome@anggota');
@@ -43,6 +46,9 @@ Route::middleware(['status'])->group(function () {
 Route::middleware(['status','admin'])->group(function () {
 //pengaturan
 Route::resource('/pengaturan','pengaturan');
+Route::post('/pengaturan.jenis_buku','pengaturan@jenis_buku')->name('pengaturan.jenis');
+Route::delete('/pengaturan.hapus.{id}','pengaturan@hapus_jenis')->name('pengaturan.hapusjenis');
+Route::put('/pengaturan.ubah.{id}','pengaturan@ubah_jenis')->name('pengaturan.ubahjenis');
 Route::post('/pengaturanPerpus','pengaturan@perpus');
 Route::post('/pengaturanLogo','pengaturan@logo');
 
@@ -57,6 +63,9 @@ Route::get('/anggota/resetPassword/{nis}', 'anggotaController@resetPassword');
 //buku
 Route::resource('/buku', 'bukuController');
 
+//daftar pengunjung
+Route::resource('/daftarPengunjung','daftarPengunjungController');
+Route::post('/resetPerangkat','daftarPengunjungController@resetPerangkat')->name('reset.perangkat');
 
 //admin
 Route::resource('/admin', 'adminController');

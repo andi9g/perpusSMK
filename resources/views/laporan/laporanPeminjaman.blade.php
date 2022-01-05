@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Laporan Anggota</title>
+  <title>Laporan Peminjaman</title>
   
   <link rel="stylesheet" href="cssLaporan">
 </head>
@@ -74,7 +74,7 @@
             @if ($ket == 'keseluruhan')
                 Cetak {{$ket}} peminjaman satuan 
             @else
-                Cetak peminjaman satuan berdasarkan 
+                Cetak peminjaman berdasarkan 
                 <?php 
                     $S = substr_count($ket, "-");
                     $ket2 = explode("-", $ket);

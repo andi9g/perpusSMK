@@ -22,6 +22,24 @@ class CreatePeminjamenTable extends Migration
             $table->string('status');
             $table->timestamps();
         });
+        Schema::create('tb_pengembalian', function (Blueprint $table) {
+            $table->id();
+            $table->char('nis','10');
+            $table->char('kd_buku','10');
+            $table->char('jumlah_pinjam','3');
+            $table->string('ket');
+            $table->string('status');
+            $table->timestamps();
+        });
+        Schema::create('log_peminjaman', function (Blueprint $table) {
+            $table->id();
+            $table->char('nis','10');
+            $table->char('kd_buku','10');
+            $table->char('jumlah_pinjam','3');
+            $table->string('ket');
+            $table->string('status');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -32,5 +50,7 @@ class CreatePeminjamenTable extends Migration
     public function down()
     {
         Schema::dropIfExists('tb_peminjaman');
+        Schema::dropIfExists('tb_pengembalian');
+        Schema::dropIfExists('log_peminjaman');
     }
 }

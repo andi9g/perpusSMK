@@ -39,6 +39,9 @@
 
         <div class="col-md-7">
             <div class="card card-outline card-success p-3">
+                @include('setting.pengaturanJenis')
+             </div>
+            <div class="card card-outline card-success p-3">
                @include('setting.pengaturanPerpus')
             </div>
         </div>

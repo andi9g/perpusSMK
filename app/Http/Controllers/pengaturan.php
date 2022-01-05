@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\jurusan;
+use App\Models\buku;
+use App\Models\jenisBuku;
 use App\Models\anggota;
 use App\Models\admin;
 use App\Models\pengaturanLogo;
@@ -23,8 +25,10 @@ class pengaturan extends Controller
     public function index()
     {
         $jurusan = jurusan::get();
+        $jenis_buku = jenisBuku::get();
         return view('pages/pengaturan', [
-            'jurusanku' => $jurusan
+            'jurusanku' => $jurusan,
+            'jenis_buku' => $jenis_buku
         ]);
     }
 
@@ -44,6 +48,25 @@ class pengaturan extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function jenis_buku(Request $request)
+    {
+        $request->validate([
+            'jenis_buku' => 'required',
+        ]);
+        try {
+            $jenis_buku = new jenisBuku;
+            $jenis_buku->jenis_buku = $request->jenis_buku;
+            $jenis_buku->save();
+
+            if ($jenis_buku) {
+                return redirect('pengaturan')->with('toast_success','Data berhasil di tambahkan');
+            }
+
+        } catch (\Throwable $th) {
+            return redirect('pengaturan')->with('toast_error','terjadi kesalahan');
+        }
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -92,6 +115,24 @@ class pengaturan extends Controller
      * @param  \App\Models\jurusan  $jurusan
      * @return \Illuminate\Http\Response
      */
+
+    public function ubah_jenis(Request $request, $id)
+    {
+        $request->validate([
+            'jenisEdit' => 'required'
+        ]);
+        try {
+            $edit = jenisBuku::where('id',$id)->update([
+                'jenis_buku' => $request->jenisEdit
+            ]);
+            if ($edit) {
+                return redirect('pengaturan')->with('toast_success','Data berhasil di Edit');
+            }
+        } catch (\Throwable $th) {
+            return redirect('pengaturan')->with('toast_error','terjadi kesalahan');
+        }
+    }
+
     public function update(Request $request, jurusan $jurusan,$id)
     {
         $request->validate([
@@ -101,7 +142,7 @@ class pengaturan extends Controller
             $edit = jurusan::where('id',$id)->update([
                 'jurusan' => $request->jurusanEdit
             ]);
-            if ($jurusan) {
+            if ($edit) {
                 return redirect('pengaturan')->with('toast_success','Data berhasil di Edit');
             }
         } catch (\Throwable $th) {
@@ -115,6 +156,26 @@ class pengaturan extends Controller
      * @param  \App\Models\jurusan  $jurusan
      * @return \Illuminate\Http\Response
      */
+
+    public function hapus_jenis($id)
+    {
+        try {
+            $data = buku::where('jenis_buku',$id)->count();
+            if ($data<=0) {
+                $hapus = jenisBuku::where('id',$id)->delete();
+                if ($hapus) {
+                    return redirect('pengaturan')->with('toast_success','Data berhasil di hapus');
+                }
+            }else {
+                return redirect('pengaturan')->with('warning','Terdapat Buku yang terdaftar pada Jenis terkait');
+            }
+
+            
+        } catch (\Throwable $th) {
+            return redirect('pengaturan')->with('toast_error','terjadi kesalahan');
+        }
+    }
+
     public function destroy(jurusan $jurusan,$id)
     {
        
@@ -210,6 +271,7 @@ class pengaturan extends Controller
        
         
     }
+    
     public function keluar(Request $request)
     {
         $request->session()->forget('nama_pengguna');

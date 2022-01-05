@@ -200,6 +200,20 @@
                     </ul>
                   </li>
 
+                  <li class="nav-item hoverku @yield('activeDaftarPengunjung')" id="daftarPengunjung">
+                    <a href="{{ url('/daftarPengunjung') }}" class="nav-link">
+                      <i class="nav-icon fas fa-calendar"></i>
+                      <p>
+                        Daftar Pengunjung
+                      </p>
+                    </a>
+                  </li>
+
+
+
+
+
+
                   <li class="nav-header"><b>PROSES  </b><hr class="m-0 p-0"></li> 
                   <li class="nav-item hoverku @yield('activeDataPeminjaman')">
                     <a href="{{ url('peminjaman', []) }}" class="nav-link">
@@ -216,7 +230,7 @@
                           ->select('tb_peminjaman.created_at','tb_peminjaman.ket')->get();
 
                           $keterlambatan = DB::table('tb_pengaturan')->first();
-                          $masaa = $keterlambatan->keterlambatan;
+                          $masaa = empty($keterlambatan->keterlambatan)?null:$keterlambatan->keterlambatan;
                           $telat=0;
                           $bentarLagi =0;
                           foreach ($notif as $peminjaman) {
@@ -268,6 +282,7 @@
                   </li>
               @endif  
               
+
 
               
               
@@ -347,7 +362,8 @@
 
 
 <!-- Toastr -->
-
+{{-- <!-- bs-custom-file-input -->
+<script src="plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script> --}}
 <!-- PAGE PLUGINS -->
 
 
@@ -393,14 +409,14 @@
     $(function () {
       $("#example1").DataTable({
         "responsive": true,
-        "autoWidth": false,
+        "autoWidth": true,
       });
       $('#example2').DataTable({
-        "paging": true,
+        "paging": false,
         "lengthChange": true,
-        "searching": true,
+        "searching": false,
         "ordering": false,
-        "info": true,
+        "info": false,
         "autoWidth": false,
         "responsive": true,
       });

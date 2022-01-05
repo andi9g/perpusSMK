@@ -49,6 +49,21 @@
   </div>
   <!-- /.card-header -->
   <div class="card-body">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <form action="{{ url()->current() }}" class="d-inline">
+          <div class="form-group top_search">
+            <div class="input-group">
+                <input type="text" class="form-control bgku3" name="keyword" value="{{empty($_GET['keyword'])?'':$_GET['keyword']}}" placeholder="Search for...">
+                <span class="input-group-btn">
+                  <button type="submit" class="btn btn-default"  type="button">Search</button>
+                </span>
+              </div>
+            </div>
+          </form>
+      </div>
+    </div>
+
     <table id="example2" class="table table-sm table-hover table-bordered table-striped tabelku">
       <thead>
       <tr align="center">
@@ -60,13 +75,13 @@
       </tr>
       </thead>
       <tbody>
-        @foreach ($admin as $admin)
+        @foreach ($admin as $tampil)
         <tr style="text-transform: capitalize">
           <td align="center">{{$loop->iteration}}</td>
-          <td nowrap>{{$admin->nama_admin}}</td>
-          <td nowrap align="center">{{$admin->username}}</td>
+          <td nowrap>{{$tampil->nama_admin}}</td>
+          <td nowrap align="center">{{$tampil->username}}</td>
           <td nowrap align="center">
-              @if (Hash::check('admin12345',$admin->password))
+              @if (Hash::check('admin12345',$tampil->password))
                   default
               @else
                   Not Default
@@ -74,18 +89,18 @@
           </td>
           
           <td nowrap class="text-center">
-            <a href="{{ route('admin.edit', $admin->id) }}" class="btn btn-info btn-xs px-2">
+            <a href="{{ route('admin.edit', $tampil->id) }}" class="btn btn-info btn-xs px-2">
               <i class="fa fa-pencil"></i> Edit
             </a>
   
-            <form action="{{ route('admin.destroy', $admin->id) }}" method="post" class="d-inline">
+            <form action="{{ route('admin.destroy', $tampil->id) }}" method="post" class="d-inline">
               @csrf
               @method('DELETE')
               <button type="submit" onclick="return confirm('Yakin dihapus?..')" class="btn btn-danger btn-xs px-2">
                 <i class="fa fa-trash"></i> Hapus
               </button>
             </form>
-            <form action="{{ url('admin/resetPassword', $admin->id) }}" method="post" class="d-inline">
+            <form action="{{ url('admin/resetPassword', $tampil->id) }}" method="post" class="d-inline">
               @csrf
               @method('HEAD')
               <button type="submit" onclick="return confirm('Yakin direset?..')" class="btn btn-success btn-xs px-2">
@@ -100,6 +115,14 @@
       
       </tbody>
     </table>
+
+    <div class="row align-content-center justify-content-center">
+      <div class="col-12">
+        <div class="card-body float-right">
+          {{ $admin->links('vendor.pagination.bootstrap-4') }}
+        </div>
+      </div>
+    </div>
 
     <div class="modal fade" id="modal-default">
       <div class="modal-dialog">

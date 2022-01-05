@@ -23,6 +23,20 @@ class CreateAnggotasTable extends Migration
             $table->string('foto')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('daftar_pengunjung', function (Blueprint $table) {
+            $table->id();
+            $table->char('nis','9');
+            $table->timestamps();
+        });
+
+        Schema::create('perangkat', function (Blueprint $table) {
+            $table->id();
+            $table->string('perangkat');
+            $table->timestamps();
+        });
+
+
     }
 
     /**
@@ -33,5 +47,7 @@ class CreateAnggotasTable extends Migration
     public function down()
     {
         Schema::dropIfExists('tb_anggota');
+        Schema::dropIfExists('daftar_pengunjung');
+        Schema::dropIfExists('perangkat');
     }
 }

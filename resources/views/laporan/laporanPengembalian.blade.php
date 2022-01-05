@@ -154,7 +154,7 @@
         <th nowrap>Tgl Kembali</th>
       </tr>
       @foreach ($tampil as $pinjam)
-          
+      @if ($pinjam->status=='kembali')
       <tr>
         <td align="center">{{$loop->iteration}}</td>
         <td align="center">{{$pinjam->nis}}</td>
@@ -166,6 +166,9 @@
         <td align="center">{{date('d/m/Y', strtotime($pinjam->updated_at))}}</td>
         
       </tr>
+          
+      @endif
+          
       @endforeach
     </table>
 

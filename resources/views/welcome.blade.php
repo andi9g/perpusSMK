@@ -62,6 +62,24 @@
       <nav class="nav-menu mt-0 py-2">
         <ul>
             <li class="active"><a href="#about"><i class="bx bx-book"></i> <span>Daftar Buku</span></a></li>
+              
+            @if ($perangkat > 0)
+            @php
+                $perangkat = $_SERVER['HTTP_USER_AGENT'];
+                $ambil1 = explode(')', $perangkat);
+                $perangkat = $ambil1[0];
+
+                $ambil = DB::table('perangkat')->first();
+                
+            @endphp
+            @if ($ambil->perangkat == $perangkat)
+            <li><a href="{{ route('halaman.pengunjung') }}"><i class="bx bx-edit"></i> <span>Daftar Pengunjung</span></a></li>
+            @endif
+              
+            @else 
+            <li><a href="{{ route('halaman.pengunjung') }}"><i class="bx bx-edit"></i> <span>Daftar Pengunjung</span></a></li>
+            @endif
+            
             <li><a href="{{ url('/login', []) }}"><i class="bx bx-lock"></i> <span>Login</span></a></li>
 
         </ul>
@@ -75,7 +93,7 @@
   {{-- style="background: url('gambar/{{$logo->logo}}'); " --}}
   <section class="d-flex flex-column justify-content-center py-2 align-items-center" style="background:url('gambar/background.jpg');filter: brightness(87%) " >
     <div class="hero-container cssku"  data-aos="fade-in">
-      <h1 class="my-0 py-0 text-success" style="color: rgb(29, 199, 29) !important"><b>Selamat Datang</b></h1>
+      <h1 class="my-0 py-0 text-success" style="color: rgb(29, 199, 29) !important"><b>SELAMAT DATANG </b></h1>
       <p class="py-0 text-bold"><span class="typed" data-typed-items="Di Sistem Informasi Perpustakaan, {{empty($perpus->nama_perpus)?'none':$perpus->nama_perpus}},Berbasis Website"></span></p>
     </div>
   </section><!-- End Hero -->
@@ -127,6 +145,8 @@
                     @endforeach
                     </tbody>
                   </table>
+          </div>
+        </div>
           
         <br>
         <br>
@@ -135,34 +155,11 @@
       </div>
     </section><!-- End About Section -->
 
-    <!-- ======= Facts Section ======= -->
    
-
-    
-   
-
-    <!-- ======= Portfolio Section ======= -->
-    
-
-    <!-- ======= Services Section ======= -->
-   
-
-    <!-- ======= Testimonials Section ======= -->
-    
-
-    <!-- ======= Contact Section ======= -->
     
   </main><!-- End #main -->
 
-  <!-- ======= Footer ======= -->
-  <footer id="footer">
-    
-    <div class="container">
-      <div class="copyright">
-        &copy; Copyright <strong><span>&i</span></strong>
-      </div>
-    </div>
-  </footer><!-- End  Footer -->
+ 
 
   <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
 
