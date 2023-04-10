@@ -148,19 +148,24 @@
         <th nowrap>Kd Buku</th>
         <th nowrap>Judul Buku</th>
         <th nowrap>Pengarang</th>
-        <th nowrap>Jenis B.</th>
+        <th nowrap>Jml Buku</th>
         <th nowrap>Penerbit</th>
         <th nowrap>Tahun</th>
         <th nowrap>Lokasi Rak</th>
       </tr>
+	@php
+		$total = 0;
+		@endphp
       @foreach ($tampil as $buku)
-          
+      @php
+			$total = $total + $buku->stok;
+		@endphp
       <tr valign="top">
         <td align="center">{{$loop->iteration}}</td>
         <td align="center">{{$buku->kd_buku}}</td>
         <td >{{$buku->judul_buku}}</td>
         <td >{{$buku->pengarang}}</td>
-        <td >{{$buku->jenis_buku}}</td>
+        <td align="center">{{$buku->stok}}</td>
         <td >{{$buku->penerbit}}</td>
         <td align="center">{{$buku->tahun}}</td>
         <td align="center">{{$buku->lokasi_rak}}</td>
@@ -168,6 +173,14 @@
       </tr>
       @endforeach
     </table>
+	
+	<table>
+		<tr>
+			<td><h3>TOTAL BUKU</h3></td>
+			<td><h3>:</h3></td>
+			<td><h3>{{$total}}</h3></td>
+		</tr>
+	</table>
 
 </body>
 </html>

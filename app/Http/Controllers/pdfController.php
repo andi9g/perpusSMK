@@ -101,13 +101,12 @@ class pdfController extends Controller
             if($ket=="keseluruhan"){
                 $query = buku::orderBy('id')->get();
             }else{
-                $query = buku::where("kd_buku","like","%{$ket}%")
-                ->orWhere("judul_buku","like","%{$ket}%")
-                ->orWhere("pengarang","like","%{$ket}%")
-                ->orWhere("penerbit","like","%{$ket}%")
-                ->orWhere("jenis_buku","like","%{$ket}%")
-                ->orWhere("tahun","like","%{$ket}%")
-                ->orWhere("lokasi_rak","like","%{$ket}%")->get();
+                $query = buku::
+					where("judul_buku","like","{$ket}%")
+					->orWhere("pengarang","like","{$ket}%")
+					->orWhere("jenis_buku","like","{$ket}%")
+					->orWhere("lokasi_rak", "like", "{$ket}%")
+				->get();
             }
 
             $pdf = PDF::loadView('laporan.laporanBuku', [
@@ -134,6 +133,7 @@ class pdfController extends Controller
                 $query = peminjaman::join('tb_anggota','tb_anggota.nis','=','tb_peminjaman.nis')
                 ->join('tb_buku','tb_buku.kd_buku','=','tb_peminjaman.kd_buku')
                 ->where('tb_peminjaman.status','=','pinjam')
+					->orderBy('tb_peminjaman.created_at', 'ASC')
                 ->select('tb_peminjaman.nis','tb_peminjaman.jumlah_pinjam','tb_peminjaman.kd_buku','tb_buku.judul_buku','tb_peminjaman.created_at','tb_peminjaman.ket','tb_anggota.namaAnggota')->get();
 
                 $pdf = PDF::loadView('laporan.laporanPeminjaman', [
@@ -197,6 +197,7 @@ class pdfController extends Controller
                 ->orWhere("tb_buku.judul_buku","like","%{$ket}%")
                 ->orWhere("tb_anggota.namaAnggota","like","%{$ket}%")
                 ->orWhere("log_peminjaman.created_at","like","%{$ket}%")
+					->orderBy('log_peminjaman.created_at', 'ASC')
                 ->select('log_peminjaman.nis','log_peminjaman.status','log_peminjaman.jumlah_pinjam','log_peminjaman.kd_buku','tb_buku.judul_buku','log_peminjaman.created_at','log_peminjaman.updated_at','log_peminjaman.ket','tb_anggota.namaAnggota')
                 ->get();
             }
@@ -216,10 +217,8 @@ class pdfController extends Controller
                 $query = anggota::join('jurusan','jurusan.id','=','tb_anggota.id_jurusan')
                 ->join('daftar_pengunjung','daftar_pengunjung.nis','=','tb_anggota.nis')
                 ->select('daftar_pengunjung.id','daftar_pengunjung.nis','tb_anggota.namaAnggota','jurusan.jurusan','daftar_pengunjung.created_at')
-                ->where("daftar_pengunjung.nis","like","%{$ket}%")
-                ->orWhere("tb_anggota.namaAnggota","like","%{$ket}%")
-                ->orWhere("jurusan.jurusan","like","%{$ket}%")
-                ->orWhere("daftar_pengunjung.created_at","like","%{$ket}%")
+                ->where("daftar_pengunjung.created_at","like","{$ket}%")
+					->orderBy("daftar_pengunjung.created_at", "asc")
                 ->get();
             }
 

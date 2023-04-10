@@ -22,8 +22,9 @@ class bukuController extends Controller
                 ->orWhere('pengarang','like',"%{$request->keyword}%")
                 ->orWhere('penerbit','like',"%{$request->keyword}%")
                 ->orWhere('lokasi_rak','like',"%{$request->keyword}%");
-        })->select('tb_buku.*','jenis_buku.jenis_buku')
+        })
         ->join('jenis_buku','jenis_buku.id','=','tb_buku.jenis_buku')
+		->select('tb_buku.*','jenis_buku.jenis_buku')
         ->orderBy('judul_buku')
         ->where('tb_buku.ket','tersedia')
         ->paginate($request->limit ? $request->limit : 10);

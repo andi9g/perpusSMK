@@ -148,7 +148,7 @@
         <th>NIS</th>
         <th>Nama Anggota</th>
         <th>Jurusan</th>
-        <th>Tgl Buat</th>
+        <th>Bulan</th>
       </tr>
       @foreach ($tampil as $anggota)
           
@@ -158,10 +158,7 @@
         <td nowrap>{{$anggota->namaAnggota}}</td>
         <td align="center" style="text-transform: uppercase;">{{$anggota->jurusan}}</td>
         <td align="center">
-          <?php 
-            $tahun = strtotime($anggota->created_at);
-            echo date("d/m/Y",$tahun); 
-          ?>
+          {{ date("d F Y", strtotime($anggota->created_at)) }}
         </td>
       </tr>
       @endforeach

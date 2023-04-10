@@ -142,7 +142,7 @@
       </tr>
     </table>
 
-    <table style="width: 100%;font-family: Arial, Helvetica, sans-serif;text-transform: capitalize;text-align: left;border-collapse: collapse;font-size: 10pt" border="1">
+    <table style="width: 100%;font-family: Arial, Helvetica, sans-serif;text-transform: capitalize;text-align: left;border-collapse: collapse;font-size: 8.5pt" border="1">
       <tr>
         <th>No</th>
         <th nowrap>Nis</th>
@@ -150,8 +150,9 @@
         <th nowrap>kd. Buku</th>
         <th nowrap>Judul</th>
         <th nowrap>Jml</th>
-        <th nowrap>Tgl Pinjam</th>
-        <th nowrap>Tgl Kembali</th>
+        <th nowrap>Bulan</th>
+		  <th nowrap>Tahun</th>
+        <th nowrap>Ket</th>
       </tr>
       @foreach ($tampil as $pinjam)
       @if ($pinjam->status=='kembali')
@@ -162,8 +163,13 @@
         <td align="center">{{$pinjam->kd_buku}}</td>
         <td nowrap>{{$pinjam->judul_buku}}</td>
         <td align="center">{{$pinjam->jumlah_pinjam}}</td>
-        <td align="center">{{date('d/m/Y', strtotime($pinjam->created_at))}}</td>
-        <td align="center">{{date('d/m/Y', strtotime($pinjam->updated_at))}}</td>
+        <td align="center">{{date('F', strtotime($pinjam->created_at))}}</td>
+		  <td align="center">{{date('Y', strtotime($pinjam->created_at))}}</td>
+        <td align="center">
+		  	@if(!empty($pinjam->created_at))
+				Selesai
+			@endif
+		  </td>
         
       </tr>
           
