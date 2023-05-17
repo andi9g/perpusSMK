@@ -16,6 +16,8 @@ use App\Http\Controllers\anggotaController;
 */
 
 //welcome
+//home
+
 Route::get('/welcome', 'welcome@index');
 Route::get('/login', 'welcome@login');
 Route::patch('/login/proses', 'welcome@proses_login');
@@ -53,7 +55,6 @@ Route::post('/pengaturanPerpus','pengaturan@perpus');
 Route::post('/pengaturanLogo','pengaturan@logo');
 
 
-//home
 Route::get('/', 'homeController@index');
 
 //anggota
